@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Reading Trainer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="content-container">
+        <h1>The Speed Reading Trainer</h1>
+        <p>
+            Train yourself to speed read like all the sweats out there. This method works by making your brain process
+            words faster than your internal monologue can say it, passing the bottleneck of speed reading learning.
+        </p>
+        <h3>How to use the trainer:</h3>
+        <p>
+            Enter your text into the textarea below, then set the words per minute and chunk size.
+        </p>
+        <textarea name="text input" id="text-input" placeholder="Place your text here."></textarea>
+    </div>
+    <div id="speed-reading-container">
+        <div id="speed-reading-field">
+            <span id="speed-reading-text">Words will look like this.</span>
+        </div>
+        <div id="speed-reading-options">
+            <button id="start-stop-btn" class="start-btn" disabled>Start</button>
+            <div id="speed-input-container" class="input-container" title="Minimum: 1 wpm">
+                <input type="number" id="speed-input" value="120" placeholder="0">
+                <label for="speed-input" id="speed-input-label">words per min</label>
+            </div>
+            <div id="chunk-input-container" class="input-container" title="Minimum: 1 wpc">
+                <input type="number" id="chunk-input" value="3" placeholder="0">
+                <label for="chunk-input" id="chunk-input-label">words per chunk</label>
+            </div>
+        </div>
+    </div>
+    <hr>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
