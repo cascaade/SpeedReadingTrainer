@@ -56,13 +56,8 @@ function loop() {
     let subtext = "";
     for (let i = index; i < index + wpc && i < text.length; i++) {
         subtext = subtext + (i == index ? "" : " ") + text[i];
-        console.log(i);
     }
     speedReadingText.innerText = subtext;
-    console.log(subtext);
-    console.log(index);
-    console.log(wpc);
-    console.warn('----')
 
     index += wpc;
     if (index >= text.length) {
@@ -94,7 +89,6 @@ function onStartStopClick() {
         text = textInput.value.trim().replaceAll('\n', ' ').split(' ');
         reader = setInterval(loop, timeout);
         loop(); // because setInterval waits for timeout before the first call
-        console.log(text);
     }
 }
 
