@@ -5,7 +5,11 @@ const speedInputContainer = document.getElementById("speed-input-container");
 const speedInput = document.getElementById("speed-input");
 const chunkInputContainer = document.getElementById("chunk-input-container");
 const chunkInput = document.getElementById("chunk-input");
+const farBackButton = document.getElementById("far-back-btn");
+const backButton = document.getElementById("back-btn");
 
+const backAmt = 1;
+const farBackAmt = 10;
 
 let state = "waiting";
 let reader;
@@ -52,17 +56,34 @@ function stop() {
     }
 }
 
-function loop() {
+function updateText() {
     let subtext = "";
-    for (let i = index; i < index + wpc && i < text.length; i++) {
-        subtext = subtext + (i == index ? "" : " ") + text[i];
-    }
-    speedReadingText.innerText = subtext;
+    let idx = index - 1;
 
+    for (let i = idx; i < idx + wpc && i < text.length; i++) {
+        subtext = subtext + (i == idx ? "" : " ") + (text[i] ?? "");
+    }
+
+    speedReadingText.innerText = subtext;
+}
+
+function onBackClick() {
+    index = Math.max(0, index - backAmt * wpc);
+    updateText();
+}
+
+function onFarBackClick() {
+    index = Math.max(0, index - farBackAmt * wpc);
+    updateText();
+}
+
+function loop() {
     index += wpc;
-    if (index >= text.length) {
+    if (index > text.length) {
         stop();
         index = 0;
+    } else {
+        updateText();
     }
 }
 
@@ -88,7 +109,7 @@ function onStartStopClick() {
 
         text = textInput.value.trim().replaceAll('\n', ' ').split(' ');
         reader = setInterval(loop, timeout);
-        loop(); // because setInterval waits for timeout before the first call
+        updateText();
     }
 }
 
@@ -96,3 +117,5 @@ textInput.addEventListener("change", onTextInputChange);
 checkAndConfigureStartButton();
 
 startStopButton.addEventListener("click", onStartStopClick);
+farBackButton.addEventListener("click", onFarBackClick);
+backButton.addEventListener("click", onBackClick);

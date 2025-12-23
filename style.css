@@ -3,6 +3,7 @@
     --border-color: hsl(240, 20%, 15%);
     --menu-background-color: hsl(240, 20%, 8%);
     --button-background-color: hsl(240, 20%, 10%);
+    --button-hover-background-color: hsl(240, 20%, 13%);
     --button-border-color: hsl(240, 20%, 18%);
     --heading-text-color: hsl(0, 0%, 100%);
     --main-text-color: hsl(0, 0%, 80%);
@@ -109,12 +110,22 @@ textarea {
     gap: 1rem;
 }
 
-#start-stop-btn {
+button {
     border-radius: .6rem;
     font: inherit;
     padding: .4rem 1rem .5rem;
     cursor: pointer;
     color: var(--main-text-color);
+}
+
+.grey-button {
+    background-color: var(--button-background-color);
+    border: 1px solid var(--button-border-color);
+    transition: background-color 0.2s ease;
+}
+
+.grey-button:hover {
+    background-color: var(--button-hover-background-color);
 }
 
 .stop-btn {
