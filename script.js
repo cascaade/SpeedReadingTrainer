@@ -7,6 +7,7 @@ const chunkInputContainer = document.getElementById("chunk-input-container");
 const chunkInput = document.getElementById("chunk-input");
 const farBackButton = document.getElementById("far-back-btn");
 const backButton = document.getElementById("back-btn");
+const fsButton = document.getElementById("fs-btn");
 
 const backAmt = 1;
 const farBackAmt = 10;
@@ -113,9 +114,14 @@ function onStartStopClick() {
     }
 }
 
+function onFullscreen() {
+    document.body.classList.toggle("fullscreen");
+}
+
 textInput.addEventListener("change", onTextInputChange);
 checkAndConfigureStartButton();
 
 startStopButton.addEventListener("click", onStartStopClick);
 farBackButton.addEventListener("click", onFarBackClick);
 backButton.addEventListener("click", onBackClick);
+fsButton.addEventListener("click", onFullscreen);
