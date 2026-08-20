@@ -7,6 +7,8 @@ const chunkInputContainer = document.getElementById("chunk-input-container");
 const chunkInput = document.getElementById("chunk-input");
 const farBackButton = document.getElementById("far-back-btn");
 const backButton = document.getElementById("back-btn");
+const forwardButton = document.getElementById("forward-btn");
+const farForwardButton = document.getElementById("far-forward-btn");
 const fsButton = document.getElementById("fs-btn");
 
 const backAmt = 1;
@@ -38,7 +40,7 @@ function unlockOptionsForStop() {
 }
 
 function checkAndConfigureStartButton() {
-    if (textInput.value.trim() == "") {
+    if (textInput.value.trim() === "") {
         state = "waiting";
         startStopButton.disabled = true;
     } else {
@@ -78,6 +80,16 @@ function onFarBackClick() {
     updateText();
 }
 
+function onForwardClick() {
+    index = Math.max(0, index + backAmt * wpc);
+    updateText();
+}
+
+function onFarForwardClick() {
+    index = Math.max(0, index + farBackAmt * wpc);
+    updateText();
+}
+
 function loop() {
     index += wpc;
     if (index > text.length) {
@@ -94,12 +106,12 @@ function onTextInputChange() {
 }
 
 function onStartStopClick() {
-    if (state == "running") {
+    if (state === "running") {
         stop();
     } else {
         checkAndConfigureStartButton();
 
-        if (state != "ready") { return };
+        if (state !== "ready") { return };
         state = "running";
 
         lockOptionsForStart();
@@ -124,4 +136,6 @@ checkAndConfigureStartButton();
 startStopButton.addEventListener("click", onStartStopClick);
 farBackButton.addEventListener("click", onFarBackClick);
 backButton.addEventListener("click", onBackClick);
+farForwardButton.addEventListener("click", onFarForwardClick);
+forwardButton.addEventListener("click", onForwardClick);
 fsButton.addEventListener("click", onFullscreen);
