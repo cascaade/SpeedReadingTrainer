@@ -26,7 +26,7 @@ let text = []; // words of text
 let index = 1;
 let wpc = 1; // words per chunk
 
-let pauses = [1, .5, .2]; // (x+1)*wpm
+let pauses = [1, .75, .3]; // (x+1)*wpm
 
 function lockOptionsForStart() {
     startStopButton.classList.replace('start-btn', 'stop-btn');
@@ -153,11 +153,9 @@ function parseText() {
     text = textInput.value
         .trim()
         .replaceAll('\n', ' \0 ')
-        .replaceAll(/[—–―]/g, '— \x02 ')
-        .replaceAll(/,/g, ', \x01 ')
-        .replaceAll(/;/g, ', \x01 ')
-        .replaceAll(/:/g, ', \x01 ')
-        .replaceAll(/([.!?])/g, '$1 \0 ')
+        .replaceAll(/[—–―]/g, '— \x02 —')
+        .replaceAll(/([,;:)(\/]) /g, '$1 \x01 ')
+        .replaceAll(/([.!?]) /g, '$1 \0 ')
         .split(/ +/)
         .filter(word => word.length > 0);
 }
@@ -190,7 +188,6 @@ function setupStreamText() {
 
     speedReadingText.className = "mode-stream";
     speedReadingText.style.transform = "translate3d(0, 0, 0)";
-    speedReadingTextContainer.style.width = "auto";
     speedReadingText.innerText = words.join(" ");
 
     let fullWidth = speedReadingText.getBoundingClientRect().width;
@@ -294,4 +291,5 @@ advButton.addEventListener("click", () => {
     else mode = "classic";
 
     speedReadingText.className = "mode-" + mode;
+    advButton.innerText = mode;
 });
