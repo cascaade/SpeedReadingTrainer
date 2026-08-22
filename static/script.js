@@ -10,14 +10,13 @@ const farBackButton = document.getElementById("far-back-btn");
 const backButton = document.getElementById("back-btn");
 const forwardButton = document.getElementById("forward-btn");
 const farForwardButton = document.getElementById("far-forward-btn");
-const fsButton = document.getElementById("fs-btn");
 const advButton = document.getElementById("adv-btn");
 
 const backAmt = 1;
 const farBackAmt = 10;
 
 let state = "waiting";
-let mode = "classic"; // "classic" | "stream"
+let mode = "tokens"; // "tokens" | "spotlight" | "cursor"
 
 let reader;
 let streamFrame = null;
@@ -49,6 +48,12 @@ function unlockOptionsForStop() {
 }
 
 function checkAndConfigureStartButton() {
+    if (mode === "tokens") {
+        state = "waiting";
+        startStopButton.disabled = true;
+        return;
+    }
+
     if (textInput.value.trim() === "") {
         state = "waiting";
         startStopButton.disabled = true;
@@ -235,14 +240,38 @@ function onTextInputChange() {
     lastRealWord = "";
     parseText();
 
-    if (mode === "stream") {
-        setupStreamText();
+    if (mode === "tokens") {
+        let words = getRealWords();
+        speedReadingText.replaceChildren(
+            ...words.flatMap((word, i) => {
+                const noSpaceAfter = word.endsWith("\x03");
+                const cleanWord = noSpaceAfter ? word.slice(0, -1) : word;
+
+                const splitAt = Math.max(2, Math.ceil(cleanWord.length * (3/10)));
+
+                const bold = document.createElement("strong");
+                bold.textContent = cleanWord.slice(0, splitAt);
+
+                const normal = document.createElement("span");
+                normal.textContent = cleanWord.slice(splitAt);
+
+                const elements = [bold, normal];
+
+                if (i < words.length - 1 && !noSpaceAfter) {
+                    elements.push(document.createTextNode(" "));
+                }
+
+                return elements;
+            })
+        );
     } else {
         updateText();
     }
 }
 
 function onStartStopClick() {
+    if (mode === "tokens") { return }
+
     if (state === "running") {
         stop();
     } else {
@@ -265,10 +294,6 @@ function onStartStopClick() {
     }
 }
 
-function onFullscreen() {
-    document.body.classList.toggle("fullscreen");
-}
-
 textInput.addEventListener("change", onTextInputChange);
 checkAndConfigureStartButton();
 chunkInput.addEventListener("change", () => {
@@ -286,10 +311,11 @@ farBackButton.addEventListener("click", onFarBackClick);
 backButton.addEventListener("click", onBackClick);
 farForwardButton.addEventListener("click", onFarForwardClick);
 forwardButton.addEventListener("click", onForwardClick);
-fsButton.addEventListener("click", onFullscreen);
 advButton.addEventListener("click", () => {
-    if (mode === "classic") mode = "stream";
-    else mode = "classic";
+    // if (mode === "tokens") mode = "stream";
+    // else mode = "tokens";
+
+    mode = "tokens";
 
     speedReadingText.className = "mode-" + mode;
     advButton.innerText = mode;
