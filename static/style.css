@@ -31,11 +31,12 @@ body {
     font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-weight: 400;
 
-    margin: 0;
+    margin: auto;
     width: 100%;
+    max-width: 800px;
     height: 100%;
     box-sizing: border-box;
-    padding: 3em 12vw 0;
+    padding: 3em 24px 0;
     overflow: auto;
 
     background-color: var(--background-color);
@@ -85,7 +86,7 @@ textarea {
     color: inherit;
     width: 100%;
     border-radius: .8em;
-    padding: 3em 0.8em .6em;
+    padding: 2em 0.8em .6em;
     box-sizing: border-box;
     min-height: 80%;
     margin-bottom: 2em;
@@ -97,7 +98,7 @@ textarea {
 #speed-reading-field {
     flex-grow: 1;
     box-sizing: border-box;
-    padding: 3em 4em;
+    padding: 0 2em;
 
     display: flex;
     align-items: center;
@@ -147,6 +148,22 @@ textarea {
         display: flex;
         justify-content: center;
         gap: .5em;
+    }
+}
+
+#speed-reading-container:has(#speed-reading-text-container .mode-tokens) {
+    #speed-reading-options .row > *:not(#adv-btn) {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    :root {
+        font-size: 13px;
+    }
+
+    #speed-reading-field {
+        padding: 0 1em;
     }
 }
 

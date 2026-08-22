@@ -157,7 +157,7 @@ function onFarForwardClick() {
 function parseText() {
     text = textInput.value
         .trim()
-        .replaceAll('\n', ' \0 ')
+        .replaceAll('\n', '\n \0 ')
         .replaceAll(/[—–―]/g, '— \x02 ')
         .replaceAll(/([,;:)(\/]) /g, '$1 \x01 ')
         .replaceAll(/([.!?]) /g, '$1 \0 ')
@@ -242,28 +242,46 @@ function onTextInputChange() {
 
     if (mode === "tokens") {
         let words = getRealWords();
-        speedReadingText.replaceChildren(
-            ...words.flatMap((word, i) => {
-                const noSpaceAfter = word.endsWith("\x03");
-                const cleanWord = noSpaceAfter ? word.slice(0, -1) : word;
+        speedReadingText.replaceChildren();
 
-                const splitAt = Math.max(2, Math.ceil(cleanWord.length * (3/10)));
+        let paragraph = document.createElement("p");
 
-                const bold = document.createElement("strong");
-                bold.textContent = cleanWord.slice(0, splitAt);
+        for (let i = 0; i < words.length; i++) {
+            const rawWord = words[i];
 
-                const normal = document.createElement("span");
-                normal.textContent = cleanWord.slice(splitAt);
+            const hasNewline = rawWord.endsWith("\n");
+            const noSpaceAfter = rawWord.endsWith("\x03");
 
-                const elements = [bold, normal];
+            // Remove control characters before displaying the word.
+            const cleanWord = rawWord.replace(/[\n\x03]+$/, "");
 
-                if (i < words.length - 1 && !noSpaceAfter) {
-                    elements.push(document.createTextNode(" "));
-                }
+            const splitAt = Math.ceil(cleanWord.length / 4);
 
-                return elements;
-            })
-        );
+            const bold = document.createElement("strong");
+            bold.textContent = cleanWord.slice(0, splitAt);
+
+            const normal = document.createElement("span");
+            normal.textContent = cleanWord.slice(splitAt);
+
+            paragraph.append(bold, normal);
+
+            // Newline means: finish this paragraph.
+            if (hasNewline) {
+                speedReadingText.appendChild(paragraph);
+                paragraph = document.createElement("p");
+                continue;
+            }
+
+            // \x03 means: don't insert a space after this word.
+            if (!noSpaceAfter && i < words.length - 1) {
+                paragraph.appendChild(document.createTextNode(" "));
+            }
+        }
+
+        // Don't append an empty paragraph if the text ended with \n.
+        if (paragraph.childNodes.length > 0) {
+            speedReadingText.appendChild(paragraph);
+        }
     } else {
         updateText();
     }
