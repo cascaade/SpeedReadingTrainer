@@ -158,7 +158,7 @@ function parseText() {
     text = textInput.value
         .trim()
         .replaceAll('\n', '\n \0 ')
-        .replaceAll(/[—–―]/g, '— \x02 ')
+        .replaceAll(/[—–―]/g, '—\x03 \x02 ')
         .replaceAll(/([,;:)(\/]) /g, '$1 \x01 ')
         .replaceAll(/([.!?]) /g, '$1 \0 ')
         .replaceAll('-', '-\x03 ')
