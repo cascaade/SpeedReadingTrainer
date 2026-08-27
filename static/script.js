@@ -27,6 +27,26 @@ let wpc = 1; // words per chunk
 
 let pauses = [1, .75, .3]; // (x+1)*wpm
 
+const tagColors = new Map(Object.entries({
+    SUBJECT: "hsl(20, 50%, 80%)",
+    ACTION: "hsl(40, 50%, 80%)",
+    OBJECT: "hsl(240, 50%, 80%)",
+    NOUN: "hsl(80, 50%, 80%)",
+    MODIFIER: "hsl(100, 50%, 80%)",
+    SUBORDINATE: "hsl(120, 50%, 80%)",
+    CLAUSE: "hsl(140, 50%, 80%)",
+    CAUSE: "hsl(160, 50%, 80%)",
+    CONDITION: "hsl(180, 50%, 80%)",
+    PURPOSE: "hsl(200, 50%, 80%)",
+    CONTRAST: "hsl(220, 50%, 80%)",
+    TIME: "hsl(60, 50%, 80%)",
+    PREPOSITIONAL: "hsl(260, 50%, 80%)",
+    CONNECTOR: "hsl(280, 50%, 80%)",
+    QUOTATION: "hsl(300, 50%, 80%)",
+    LIST: "hsl(320, 50%, 80%)",
+    EMPHASIS: "hsl(340, 50%, 80%)",
+}));
+
 function lockOptionsForStart() {
     startStopButton.classList.replace('start-btn', 'stop-btn');
     startStopButton.innerText = "Stop";
@@ -109,6 +129,128 @@ function getChunkDuration(startIdx) {
     }
 
     return delay;
+}
+
+function renderSemanticText(output) {
+    speedReadingText.replaceChildren();
+
+    const outputMatch = output.match(
+        /<OUTPUT\b[^>]*>([\s\S]*?)<\/OUTPUT\s*>/i
+    );
+
+    if (!outputMatch) {
+        renderPlainTokenText(output);
+        return;
+    }
+
+    const semanticText = outputMatch[1];
+
+    /*
+     * Parse the markup as a document fragment.
+     *
+     * DOMParser lets us handle arbitrarily nested semantic tags without
+     * having to manually track opening/closing tags.
+     */
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(
+        `<div id="root">${semanticText}</div>`,
+        "text/html"
+    );
+
+    const root = doc.getElementById("root");
+
+    if (!root) {
+        renderPlainTokenText(semanticText);
+        return;
+    }
+
+    /*
+     * Convert semantic tags into spans.
+     *
+     * Everything else is treated as text rather than being copied into
+     * the real DOM. This prevents arbitrary HTML from the model from
+     * becoming executable/visible markup.
+     */
+    const fragment = document.createDocumentFragment();
+
+    for (const child of root.childNodes) {
+        fragment.appendChild(convertSemanticNode(child));
+    }
+
+    speedReadingText.appendChild(fragment);
+}
+
+function convertSemanticNode(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+        return document.createTextNode(node.nodeValue ?? "");
+    }
+
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+        return document.createDocumentFragment();
+    }
+
+    const tagName = node.tagName.toUpperCase();
+
+    /*
+     * Only our explicitly allowed semantic tags become semantic spans.
+     */
+    if (tagColors.get(tagName)) {
+        const span = document.createElement("span");
+        span.classList.add(`mod`);
+        span.classList.add(`mod-${tagName.toLowerCase()}`);
+        span.style.setProperty("--mod-color", tagColors.get(tagName));
+
+        for (const child of node.childNodes) {
+            span.appendChild(convertSemanticNode(child));
+        }
+
+        return span;
+    }
+
+    /*
+     * Unknown HTML elements are NOT copied into the real DOM.
+     *
+     * Their children are preserved as plain text/content, which means
+     * something like <script>...</script> cannot become a real script.
+     */
+    const fragment = document.createDocumentFragment();
+
+    for (const child of node.childNodes) {
+        fragment.appendChild(convertSemanticNode(child));
+    }
+
+    return fragment;
+}
+
+function renderPlainTokenText(text) {
+    speedReadingText.replaceChildren();
+
+    const paragraph = document.createElement("p");
+
+    const words = text
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    for (let i = 0; i < words.length; i++) {
+        const word = words[i];
+
+        const splitAt = Math.ceil(word.length / 4);
+
+        const bold = document.createElement("strong");
+        bold.textContent = word.slice(0, splitAt);
+
+        const normal = document.createElement("span");
+        normal.textContent = word.slice(splitAt);
+
+        paragraph.append(bold, normal);
+
+        if (i < words.length - 1) {
+            paragraph.appendChild(document.createTextNode(" "));
+        }
+    }
+
+    speedReadingText.appendChild(paragraph);
 }
 
 let lastRealWord = "";
@@ -283,6 +425,7 @@ function onTextInputChange() {
             speedReadingText.appendChild(paragraph);
         }
     } else {
+        parseText();
         updateText();
     }
 }

@@ -6,7 +6,7 @@ const OLLAMA_URL = "http://localhost:11434/api/generate";
 const MODEL = "ornith";
 const INSTRUCTIONS_PATH = path.resolve(__dirname, "..", "instructions.md");
 const OUT_DIR = path.resolve(__dirname, "..", "out");
-const CONTEXT_WINDOW = 8192;
+const CONTEXT_WINDOW = 32768;
 
 interface OllamaStreamChunk {
     response?: string;
@@ -31,7 +31,27 @@ async function main(): Promise<void> {
         readFile(inputPath, "utf-8"),
     ]);
 
-    const prompt = `${instructions.trim()}\n\n---\n\n${inputText}`;
+    const prompt = `${instructions.trim()}\n\n---\n\n<INPUT>${inputText}</INPUT>`;
+
+    const preprocess = await fetch(OLLAMA_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            model: MODEL,
+            prompt,
+            stream: false,
+            options: {
+                num_ctx: CONTEXT_WINDOW,
+                num_predict: 1,
+            },
+        }),
+    });
+
+    const preprocessData = (await preprocess.json()) as { prompt_eval_count?: number };
+    const promptTokens = preprocessData.prompt_eval_count ?? 0;
+    const percentUsed = ((promptTokens / CONTEXT_WINDOW) * 100).toFixed(1);
+
+    console.log(`📏 Prompt: ${promptTokens} tokens (${percentUsed}% of ${CONTEXT_WINDOW}-token context window)`);
 
     console.log(`🤖 Sending "${path.basename(inputPath)}" to model "${MODEL}"...`);
     console.log(`⌨️  Type "q" + Enter anytime to stop generation early.`);

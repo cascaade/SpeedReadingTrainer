@@ -134,7 +134,7 @@ textarea {
         font-weight: 700;
     }
 
-    span {
+    span:not(.mod) {
         opacity: .9;
     }
 }
@@ -155,6 +155,10 @@ textarea {
     #speed-reading-options .row > *:not(#adv-btn) {
         display: none;
     }
+}
+
+.mod {
+    color: var(--mod-color);
 }
 
 @media screen and (max-width: 1024px) {
