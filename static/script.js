@@ -383,47 +383,7 @@ function onTextInputChange() {
     parseText();
 
     if (mode === "tokens") {
-        let words = getRealWords();
-        speedReadingText.replaceChildren();
-
-        let paragraph = document.createElement("p");
-
-        for (let i = 0; i < words.length; i++) {
-            const rawWord = words[i];
-
-            const hasNewline = rawWord.endsWith("\n");
-            const noSpaceAfter = rawWord.endsWith("\x03");
-
-            // Remove control characters before displaying the word.
-            const cleanWord = rawWord.replace(/[\n\x03]+$/, "");
-
-            const splitAt = Math.ceil(cleanWord.length / 4);
-
-            const bold = document.createElement("strong");
-            bold.textContent = cleanWord.slice(0, splitAt);
-
-            const normal = document.createElement("span");
-            normal.textContent = cleanWord.slice(splitAt);
-
-            paragraph.append(bold, normal);
-
-            // Newline means: finish this paragraph.
-            if (hasNewline) {
-                speedReadingText.appendChild(paragraph);
-                paragraph = document.createElement("p");
-                continue;
-            }
-
-            // \x03 means: don't insert a space after this word.
-            if (!noSpaceAfter && i < words.length - 1) {
-                paragraph.appendChild(document.createTextNode(" "));
-            }
-        }
-
-        // Don't append an empty paragraph if the text ended with \n.
-        if (paragraph.childNodes.length > 0) {
-            speedReadingText.appendChild(paragraph);
-        }
+        renderSemanticText(textInput.value);
     } else {
         parseText();
         updateText();
